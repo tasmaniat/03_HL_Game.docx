@@ -1,4 +1,5 @@
 # Function go here...
+# check user answers yes / no to a question
 def yes_no(question):
     while True:
         response = input(question).lower()
@@ -13,16 +14,19 @@ def yes_no(question):
             print("please answer yes / no")
 
 
+# Display instructions, returns ""
 def instructions():
     print()
     print("**** Welcome to the Higher Lower Game ****")
     print()
-    print("For each game you will be asked to...")
-    print("- Enter a 'low' and 'high' number.  The computer will randomly ")
-    print(" generate a")
-    print(" 'secret' number between your two chosen numbers.  It will use")
-    print(" these numbers for all")
-    print("the rounds in a given game.")
+    print("For each game you will be asked to...\n"
+          "- Enter a 'low' and 'high' number.  ")
+    print()
+    print("The computer will randomly generate a 'secret' number \n"
+          "between your two chosen numbers.")
+    print()
+    print("It will use these numbers for all\n"
+          "the rounds given in a game.")
     print("- The computer will calculate how many guesses you are allowed")
     print("- enter the number of rounds you want to play")
     print("- guess the secret number")
@@ -38,5 +42,5 @@ played_before = yes_no("Have you played the "
 
 if played_before == "no":
     instructions()
-
+print()
 print("Please press <enter> to begin...")
