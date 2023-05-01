@@ -22,11 +22,11 @@ while True:
 
 # Ask the user for the range of numbers to guess from
 while True:
-    low = int(input("Enter the lowest number to use: "))
-    high = int(input("Enter the highest number to use: "))
+    low = int(input("Low Number: "))
+    high = int(input("High NUmber: "))
     if low < high:
         break
-    print("Error: Lowest number must be less than highest number.")
+    print("Enter an integer equal or more then 2")
 
 # Calculate the number of guesses allowed
 if low == 1 and high == 100:
