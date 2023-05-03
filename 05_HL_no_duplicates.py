@@ -41,3 +41,9 @@ while guess != SECRET and guesses_left >= 1:
             print("Too low!")
         elif guess > SECRET:
             print("Too high!")
+
+if guess == SECRET:
+    if guesses_left == GUESSES_ALLOWED - 1:
+        print("Amazing! You got it in one guess")
+    else:
+        print("Well done you got it..")
