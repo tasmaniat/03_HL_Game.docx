@@ -1,3 +1,6 @@
+import math
+import random
+
 
 # check user answers yes / no to a question
 def yes_no(question):
@@ -14,72 +17,28 @@ def yes_no(question):
             print("please answer yes / no")
 
 
-# Display instructions, returns ""
+# Displays instructions, returns ""
 def instructions():
     print()
-    print("**** Welcome to the Higher Lower Game ****")
+    print("****** Welcome to the Higher Lower Game ******")
     print()
-    print("For each game you will be asked to...\n"
-          "- Enter a 'low' and 'high' number.  ")
+    print("- Enter a 'low' and 'high' number")
+    print("- A 'secret' number will be generated")
     print()
-    print("The computer will randomly generate a 'secret' number \n"
-          "between your two chosen numbers.")
-    print()
-    print("It will use these numbers for all\n"
-          "the rounds given in a game.")
-    print("- The computer will calculate how many guesses you are allowed")
-    print("- enter the number of rounds you want to play")
-    print("- guess the secret number")
+    print("- Your goal is to figure out the \n"
+          "  secret number inside the range. ")
     print()
     print("Good Luck!")
-    print()
+
     return ""
 
-# checks if user is using an integer between low and high number
-def int_check(question, low=None, high=None):
-    situation = ""
 
-    # Check if low and high values are given
-    # If both values are given, set the situation to "both"
-    # If only low value is given, set the situation to "low only"
-    if low is not None and high is not None:
-        situation = "both"
-    # Check if only low value is given
-    elif low is not None and high is None:
-        situation = "low only"
-
-    while True:
-
-        try:
-            response = int(input(question))
-
-            # checks input is not too high or too low
-            # if a both upper and lower bounds are specified
-            if situation == "both":
-                if response < low or response > high:
-                    print("Please enter a number between"
-                          "{} and {}".format(low, high))
-                    continue
-
-            # checks input is not too low
-            elif situation == "low only":
-                if response < low:
-                    print("Please enter a number that is more "
-                          "than (or equal to) {}".format(low))
-                    continue
-
-            return response
-        # check input is a integer
-        except ValueError:
-            print("please enter an integer")
-            continue
-
-
+# checks user enters an integer between a low and high number
 def int_check(question, low=None, high=None, exit_code=None):
     if low is None and high is None:
         error = "Please enter an integer"
         situation = "any integer"
-    if low is not None and high is not None:
+    elif low is not None and high is not None:
         error = f"Please enter an integer between {low} and {high}"
         situation = "both"
     else:
@@ -94,14 +53,11 @@ def int_check(question, low=None, high=None, exit_code=None):
         try:
             response = int(response)
 
-            # check that integer is valid (ie: not too low / too hig etc)
             if situation == "any integer":
                 return response
-
             elif situation == "both":
                 if low <= response <= high:
                     return response
-
             elif situation == "low only":
                 if response >= low:
                     return response
@@ -112,66 +68,155 @@ def int_check(question, low=None, high=None, exit_code=None):
             print(error)
 
 
-# main routine goes here
+# Main routine goes here
 
-rounds_played = 0
-rounds_won = 0
-
+# Game settings
 low_number = 1
 high_number = 10
-
 mode = "regular"
 
+# Game Statistics
+rounds_played = 0
+rounds_won = 0
+rounds_lost = 0
+total_guesses = 0
+best_score = float('inf')
+worst_score = float('-inf')
+game_summary = []
+
+
+print()
 # Ask the user if they have played before
 # Display instructions if they have not
-played_before = yes_no("Have you played the "
-                       "game before?  ")
+played_before = yes_no("Have you played this game before? ")
 
 if played_before == "no":
     instructions()
-print()
-print("Please press <enter> to begin...")
-print()
 
-rounds = int_check("How many rounds", 1, exit_code="")
+# ask the user how many rounds they want to play with...
+print()
+rounds = int_check("How many rounds: ", low=1)
+
+# asks user for a low and high number
+low_number = int_check("Low Number: ")
+high_number = int_check("High Number: ", low=low_number + 1)
+
+guess_range = high_number - low_number + 1
+max_raw = math.log2(guess_range)  # finds maximum # of guesses used
+max_upped = math.ceil(max_raw)  # rounds up (ceil --> ceiling)
+max_guesses = max_upped
+print("Max Guesses: {}".format(max_guesses))
 
 if rounds == "":
     mode = "infinite"
     rounds = 5
 
-# rounds loop
-end_game = "no"
-while end_game == "no":
+# Rounds loop
+end_game = False
+while rounds_played < rounds:
+
+    print()
 
     if mode == "infinite":
         heading = f"Round {rounds_played + 1} (infinite mode)"
-        rounds += 1
     else:
         heading = f"Round {rounds_played + 1} of {rounds}"
 
     print(heading)
 
-    rounds_played += 1
+    num_won = 0
 
     # Start Round!!
+    secret = random.randint(low_number, high_number)
+    guesses_left = max_guesses
+    already_guessed = []
+    result = ""
+
     while True:
-
-        secret = 7
-
-        guess = int_check("Guess (or 'xxx' to exit): ", low_number, high_number, "xxx")
-        print("you guessed", guess)
+        guess = int_check("Guess (or 'xxx' to exit): ", low_number,
+                          high_number, "xxx")
+        print("You guessed", guess)
+        print()
 
         if guess == "xxx":
             end_game = "yes"
             break
 
-            # compare guess to secret number
-        print("Pretend we've compared")
+        if guess in already_guessed:
+            print("You already guessed that number! \nPlease try again."
+                  " You *still* have {} guesses left".format(guesses_left))
+            continue
+
+        already_guessed.append(guess)
 
         if guess == secret:
+            print("Congratulations! You guessed the secret number.")
             rounds_won += 1
+            result = "win"
+            break
+        elif guesses_left > 1:
+            guesses_left -= 1
+            if guess < secret:
+                print("Too low! Try again.")
+            if guess > secret:
+                print("Too high! Try again.")
+        else:
+            print("Out of guesses! The secret number was", secret)
+            rounds_lost += 1
+            result = "lost"
             break
 
-    # check if we are out of rounds
-    if rounds_played >= rounds:
+    rounds_played += 1
+    total_guesses += max_guesses - guesses_left
+
+    if max_guesses - guesses_left < best_score:
+        best_score = max_guesses - guesses_left
+
+    if max_guesses - guesses_left > worst_score:
+        worst_score = max_guesses - guesses_left
+
+    outcome = (result, max_guesses - guesses_left)
+    game_summary.append(outcome)
+
+    if mode != "infinite" and rounds_lost >= rounds:
         break
+
+# ***** Calculate Game Stats *****
+rounds_won = rounds_played - rounds_lost
+average_guesses = total_guesses / rounds_played if rounds_played != 0 else 0
+
+# End of game Statements
+print()
+print("----------------------")
+print("won: {}\t|\t Lost: {} ".format(rounds_won, rounds_lost, ))
+print("----------------------")
+print()
+
+# Ask the user if they want to see the game statistics
+show_statistics = yes_no("Do you want to see the game Statistics?")
+if show_statistics == "yes":
+    # Displays the game scores
+    # Shows the results of the rounds in the game and
+    # guesses used to find secret number
+    print()
+    print("******* Game Scores *******")
+    print("Rounds\t| Result\t| Guesses")
+    for item, (result, guesses) in enumerate(game_summary, 1):
+        print("{}\t\t| {}\t\t| {}".format(item, result, guesses))
+
+    # Show game statistics
+    # Displays the best , worst and average scores of the game
+    print("\n******** Summary Statistics ********")
+    print("Best : {}\nWorst : {}\nAverage : "
+          "{:.2f}".format(best_score, worst_score, average_guesses))
+else:
+    print()
+    print("Thank you for playing")
+
+    # Ask the user if they want to play again or quit
+    print()
+    play_again = input("Press <Enter> to play again or any "
+                       "other key to quit: ").lower()
+    if play_again != "":
+        print()
+        print("Thank you for playing")
