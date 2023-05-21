@@ -9,7 +9,7 @@
 
 
 # Number checking function goes here
-def int_check(question, low=None, high=None):
+def int_check(question, low=None, high=None, ):
     situation = ""
 
     # Check if low and high values are given
